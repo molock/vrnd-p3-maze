@@ -5,32 +5,36 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
+	public GameObject door;
 	private const string TERM1_DAY_TEXT_FORMAT = "Coins: {0} / {1} \n DayTimeLeft: {2}";
 	private const string TERM1_NIGHT_TEXT_FORMAT = "Coins: {0} / {1} \n NightTimeLeft: {2}";
-	private const string FINAL_TEXT_FORMAT = "Time Left: {0} \n Key: {1} / {2}";
-	private const string TO_WIN_HINT = "You got the Key! \n Go Open the Day!";
-
+	private const string FINAL_TEXT_FORMAT = "Key: {0} / {1}";
+	private const string DAY_HINT = "Hint: Find coins before it's getting DARK!";
+	private const string NIGHT_HINT = "Hint: You are in a new MAZE. \n Try to find more coins!";
+	private const string FINAL_HINT = "Hint: Just go get the key!";
+	private const string TO_WIN_HINT = "You got the Key! \n Go Open the Door!";
 	private const float DAY_TIME = 120f;
-  	private const int COIN_MAX_COUNT = 5;
+  	private const int COIN_MAX_COUNT = 1;
 	private const int KEY_MAX_COUNT = 1;
 	private int _coinCount;
 
   	private int _keyCount;
 
   	private Text textField;
+	private Text hintText;
 
 	private Camera cam;
 
-	private bool isFinal;
 
 	private enum GameSection {Term1, Final, GotKey, Win};
-	private int currentSection;
+	private GameSection currentSection;
 
-	private GameObject dayMaze;
+	private GameObject _dayMaze;
 
-	private GameObject nightMaze;
+	private GameObject _nightMaze;
+	private GameObject _finalMaze;
 
-	private float _finalTimeLeft;
+	//private float _finalTimeLeft;
 
 	private float _dayTimeLeft;
 
@@ -43,20 +47,25 @@ public class GameManager : MonoBehaviour {
 	private Vector3 _originPosition;
 
 	// Use this for initialization
-	void Start () {
-		currentSection = (int)GameSection.Term1;
-		_coinCount = 0;
-		_keyCount = 0;
-		isFinal = false;
+	void Start () 
+	{
+		InitScene();
+	}
+
+	void InitScene()
+	{
+		currentSection = GameSection.Term1;
+		// currentSection = GameSection.Final;
 		cam = Camera.main;
 		transform.SetParent(cam.GetComponent<Transform>(), true);
-		textField = GetComponentInChildren<Text>();
+		
+		_coinCount = 0;
+		_keyCount = 0;
 
-		dayMaze = GameObject.Find("Day_maze");
+		textField = transform.Find("ScoreText").GetComponent<Text>();
+		hintText = transform.Find("HintText").GetComponent<Text>();
 
-		_finalTimeLeft = 120f;
-
-		_dayTimeLeft = DAY_TIME;
+		//_finalTimeLeft = 120f;
 
 		_sunLight = GameObject.Find("SunLight");
 		_moonLight = GameObject.Find("MoonLight");
@@ -66,7 +75,45 @@ public class GameManager : MonoBehaviour {
 
 		_isDayTime = true;
 
-		_originPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+		_originPosition = new Vector3(cam.transform.position.x, cam.transform.position.y, cam.transform.position.z);
+
+		InitMaze();
+	}
+
+	public void ResetScene()
+	{
+		_coinCount = 0;
+		_keyCount = 0;
+
+		currentSection = GameSection.Term1;
+
+		_isDayTime = true;
+
+		_sunLight.SetActive(true);
+		_moonLight.SetActive(false);
+
+		_dayTimeLeft = DAY_TIME;
+
+		_dayMaze.SetActive(true);
+		_nightMaze.SetActive(false);
+		_finalMaze.SetActive(false);
+
+		cam.transform.position = new Vector3(_originPosition.x, _originPosition.y, _originPosition.z);
+
+		door.transform.position = new Vector3(0f, 0f, 0f);
+	}
+
+	void InitMaze()
+	{
+		_dayMaze = GameObject.Find("DayMaze");
+		_nightMaze = GameObject.Find("NightMaze");
+		_finalMaze = GameObject.Find("FinalMaze");
+
+		_dayTimeLeft = DAY_TIME;
+
+		_dayMaze.SetActive(true);
+		_nightMaze.SetActive(false);
+		_finalMaze.SetActive(false);
 	}
 	
 	// Update is called once per frame
@@ -74,14 +121,16 @@ public class GameManager : MonoBehaviour {
 
 		switch(currentSection)
 		{
-			case (int)GameSection.Term1:
+			case GameSection.Term1:
 				if(_isDayTime)
 				{
 					textField.text = string.Format(TERM1_DAY_TEXT_FORMAT, _coinCount, COIN_MAX_COUNT, Math.Round(_dayTimeLeft, 0));
+					hintText.text = DAY_HINT;
 				}
 				else
 				{
 					textField.text = string.Format(TERM1_NIGHT_TEXT_FORMAT, _coinCount, COIN_MAX_COUNT, Math.Round(_dayTimeLeft, 0));
+					hintText.text = NIGHT_HINT;
 				}
 
 
@@ -94,42 +143,44 @@ public class GameManager : MonoBehaviour {
 					changeDayNight();
 				}
 
-
+				// if coins are enough switch to final
 				if(_coinCount >= COIN_MAX_COUNT)
 				{
 					_sunLight.SetActive(true);
 					_moonLight.SetActive(false);
 
-					currentSection = (int)GameSection.Final;
+					_dayMaze.SetActive(false);
+					_nightMaze.SetActive(false);
+					_finalMaze.SetActive(true);
+
+					cam.transform.position = new Vector3(0.7f, 3.4f, 32.7f);
+
+					currentSection = GameSection.Final;
 					
-					Debug.Log("the final maze emerged!");
 				}
 				break;
 
-			case (int)GameSection.Final:
-				textField.text = string.Format(FINAL_TEXT_FORMAT,  _finalTimeLeft, _keyCount, KEY_MAX_COUNT);
-
-				if(_finalTimeLeft > 0)
-				{
-					_finalTimeLeft = _finalTimeLeft - Time.deltaTime;
-				}
-				else
-				{
-					resetFinalMaze();
-				}
-
-				
+			case GameSection.Final:
+				textField.text = string.Format(FINAL_TEXT_FORMAT, _keyCount, KEY_MAX_COUNT);
+				hintText.text = FINAL_HINT;
+				// if(_finalTimeLeft > 0)
+				// {
+				// 	_finalTimeLeft = _finalTimeLeft - Time.deltaTime;
+				// }
+				// else
+				// {
+				// 	resetFinalMaze();
+				// }
 
 				if(_keyCount >= 1)
 				{
-					currentSection = (int)GameSection.GotKey;
-					Debug.Log("the final maze collapsed!");
+					currentSection = GameSection.GotKey;
 				}
 
 				break;
 
-			case (int)GameSection.GotKey:
-				textField.text = TO_WIN_HINT;
+			case GameSection.GotKey:
+				hintText.text = TO_WIN_HINT;
 				break;
 		}    
 
@@ -142,16 +193,16 @@ public class GameManager : MonoBehaviour {
 			_isDayTime = false;
 			_sunLight.SetActive(false);
 			_moonLight.SetActive(true);
-			dayMaze.SetActive(false);
-			//set nightMaze to active
+			_dayMaze.SetActive(false);
+			_nightMaze.SetActive(true);
 		}
 		else
 		{
 			_isDayTime = true;
 			_sunLight.SetActive(true);
 			_moonLight.SetActive(false);
-			dayMaze.SetActive(true);
-			//set nightMaze to inactive
+			_dayMaze.SetActive(true);
+			_nightMaze.SetActive(false);
 		}
 
 		_dayTimeLeft = DAY_TIME;
@@ -175,9 +226,9 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	private void resetFinalMaze()
-	{
-		// 1、把人传送回初始点
-		// 2、rebuild a key that is randomly chosen from 3 specific position
-	}
+	// private void resetFinalMaze()
+	// {
+	// 	// 1、reset camera position
+	// 	// 2、rebuild a key that is randomly chosen from 3 specific position
+	// }
 }

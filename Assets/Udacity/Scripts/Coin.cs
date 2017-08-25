@@ -24,7 +24,9 @@ public class Coin : MonoBehaviour
 
         _player.GetComponent<GameManager>().getOneCoin();
 
-        Destroy(gameObject);
+        //Destroy(gameObject);
+
+        gameObject.SetActive(false);
     }
 
 }
