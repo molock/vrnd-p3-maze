@@ -14,14 +14,14 @@ public class Door : MonoBehaviour
     private bool _locked;
     private bool _opening;
     private AudioSource _audioSource;
-    private Animator _animator;
+    private GameObject _player;
 
     void Start()
     {
         _locked = true;
         _opening = false;
         _audioSource = gameObject.GetComponent<AudioSource>();
-        _animator = gameObject.GetComponent<Animator>();
+        _player = GameObject.Find("PlayerUI");
     }
 
     void Update() {
@@ -43,7 +43,7 @@ public class Door : MonoBehaviour
         {
             // Set the "opening" boolean to true
             _opening = true;
-            
+            _player.GetComponent<GameManager>().OpenTheDoor();
         }
         // (optionally) Else
         else

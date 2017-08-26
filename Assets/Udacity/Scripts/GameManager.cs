@@ -6,6 +6,9 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
 	public GameObject door;
+	public Material skyboxDay;
+	public Material skyboxNight;
+	private Skybox currentSkybox;
 	private const string TERM1_DAY_TEXT_FORMAT = "Coins: {0} / {1} \n DayTimeLeft: {2}";
 	private const string TERM1_NIGHT_TEXT_FORMAT = "Coins: {0} / {1} \n NightTimeLeft: {2}";
 	private const string FINAL_TEXT_FORMAT = "Key: {0} / {1}";
@@ -13,8 +16,9 @@ public class GameManager : MonoBehaviour {
 	private const string NIGHT_HINT = "Hint: You are in a new MAZE. \n Try to find more coins!";
 	private const string FINAL_HINT = "Hint: Just go get the key!";
 	private const string TO_WIN_HINT = "You got the Key! \n Go Open the Door!";
+	private const string HAS_WON_HINT = "You Win! \n Click the title to restart!";
 	private const float DAY_TIME = 120f;
-  	private const int COIN_MAX_COUNT = 1;
+  	private const int COIN_MAX_COUNT = 5;
 	private const int KEY_MAX_COUNT = 1;
 	private int _coinCount;
 
@@ -45,6 +49,12 @@ public class GameManager : MonoBehaviour {
 	private bool _isDayTime;
 
 	private Vector3 _originPosition;
+	private bool _hasWon;
+
+	void Awake()
+	{
+		RenderSettings.skybox = skyboxDay;
+	}
 
 	// Use this for initialization
 	void Start () 
@@ -54,6 +64,7 @@ public class GameManager : MonoBehaviour {
 
 	void InitScene()
 	{
+		_hasWon = false;
 		currentSection = GameSection.Term1;
 		// currentSection = GameSection.Final;
 		cam = Camera.main;
@@ -66,6 +77,8 @@ public class GameManager : MonoBehaviour {
 		hintText = transform.Find("HintText").GetComponent<Text>();
 
 		//_finalTimeLeft = 120f;
+		//currentSkybox = cam.GetComponent<Skybox>();
+		//currentSkybox.material = skyboxDay;
 
 		_sunLight = GameObject.Find("SunLight");
 		_moonLight = GameObject.Find("MoonLight");
@@ -181,6 +194,14 @@ public class GameManager : MonoBehaviour {
 
 			case GameSection.GotKey:
 				hintText.text = TO_WIN_HINT;
+				if (_hasWon)
+				{
+					currentSection = GameSection.Win;
+				}
+				break;
+
+			case GameSection.Win:
+				hintText.text = HAS_WON_HINT;
 				break;
 		}    
 
@@ -195,6 +216,13 @@ public class GameManager : MonoBehaviour {
 			_moonLight.SetActive(true);
 			_dayMaze.SetActive(false);
 			_nightMaze.SetActive(true);
+
+			//currentSkybox.material = skyboxNight;
+			RenderSettings.skybox = skyboxNight;
+			DynamicGI.UpdateEnvironment();
+
+			textField.color = Color.white;
+			hintText.color = Color.white;
 		}
 		else
 		{
@@ -203,6 +231,13 @@ public class GameManager : MonoBehaviour {
 			_moonLight.SetActive(false);
 			_dayMaze.SetActive(true);
 			_nightMaze.SetActive(false);
+
+			//currentSkybox.material = skyboxDay;
+			RenderSettings.skybox = skyboxDay;
+			DynamicGI.UpdateEnvironment();
+
+			textField.color = Color.black;
+			hintText.color = Color.black;
 		}
 
 		_dayTimeLeft = DAY_TIME;
@@ -224,6 +259,11 @@ public class GameManager : MonoBehaviour {
 		{
 			_keyCount = _keyCount + 1;
 		}
+	}
+
+	public void OpenTheDoor()
+	{
+		_hasWon = true;
 	}
 
 	// private void resetFinalMaze()
