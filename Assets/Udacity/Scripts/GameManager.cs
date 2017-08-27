@@ -8,12 +8,12 @@ public class GameManager : MonoBehaviour {
 	public GameObject door;
 	public Material skyboxDay;
 	public Material skyboxNight;
-	private Skybox currentSkybox;
+	//private Skybox currentSkybox;
 	private const string TERM1_DAY_TEXT_FORMAT = "Coins: {0} / {1} \n DayTimeLeft: {2}";
 	private const string TERM1_NIGHT_TEXT_FORMAT = "Coins: {0} / {1} \n NightTimeLeft: {2}";
 	private const string FINAL_TEXT_FORMAT = "Key: {0} / {1}";
-	private const string DAY_HINT = "Hint: Find coins before it's getting DARK!";
-	private const string NIGHT_HINT = "Hint: You are in a new MAZE. \n Try to find more coins!";
+	private const string DAY_HINT = "Hint: Find enough coins before DARK!";
+	private const string NIGHT_HINT = "Hint: You are in a new MAZE. \n Go get enough coins!";
 	private const string FINAL_HINT = "Hint: Just go get the key!";
 	private const string TO_WIN_HINT = "You got the Key! \n Go Open the Door!";
 	private const string HAS_WON_HINT = "You Win! \n Click the title to restart!";
@@ -42,9 +42,9 @@ public class GameManager : MonoBehaviour {
 
 	private float _dayTimeLeft;
 
-	private GameObject _sunLight;
+	//private GameObject _sunLight;
 
-	private GameObject _moonLight;
+	//private GameObject _moonLight;
 
 	private bool _isDayTime;
 
@@ -80,11 +80,11 @@ public class GameManager : MonoBehaviour {
 		//currentSkybox = cam.GetComponent<Skybox>();
 		//currentSkybox.material = skyboxDay;
 
-		_sunLight = GameObject.Find("SunLight");
-		_moonLight = GameObject.Find("MoonLight");
+		//_sunLight = GameObject.Find("SunLight");
+		// _moonLight = GameObject.Find("MoonLight");
 
-		_sunLight.SetActive(true);
-		_moonLight.SetActive(false);
+		// _sunLight.SetActive(true);
+		// _moonLight.SetActive(false);
 
 		_isDayTime = true;
 
@@ -102,8 +102,8 @@ public class GameManager : MonoBehaviour {
 
 		_isDayTime = true;
 
-		_sunLight.SetActive(true);
-		_moonLight.SetActive(false);
+		// _sunLight.SetActive(true);
+		// _moonLight.SetActive(false);
 
 		_dayTimeLeft = DAY_TIME;
 
@@ -159,8 +159,8 @@ public class GameManager : MonoBehaviour {
 				// if coins are enough switch to final
 				if(_coinCount >= COIN_MAX_COUNT)
 				{
-					_sunLight.SetActive(true);
-					_moonLight.SetActive(false);
+					// _sunLight.SetActive(true);
+					// _moonLight.SetActive(false);
 
 					_dayMaze.SetActive(false);
 					_nightMaze.SetActive(false);
@@ -212,8 +212,8 @@ public class GameManager : MonoBehaviour {
 		if(_isDayTime)
 		{
 			_isDayTime = false;
-			_sunLight.SetActive(false);
-			_moonLight.SetActive(true);
+			// _sunLight.SetActive(false);
+			// _moonLight.SetActive(true);
 			_dayMaze.SetActive(false);
 			_nightMaze.SetActive(true);
 
@@ -227,8 +227,8 @@ public class GameManager : MonoBehaviour {
 		else
 		{
 			_isDayTime = true;
-			_sunLight.SetActive(true);
-			_moonLight.SetActive(false);
+			// _sunLight.SetActive(true);
+			// _moonLight.SetActive(false);
 			_dayMaze.SetActive(true);
 			_nightMaze.SetActive(false);
 

@@ -44,6 +44,8 @@ public class Door : MonoBehaviour
             // Set the "opening" boolean to true
             _opening = true;
             _player.GetComponent<GameManager>().OpenTheDoor();
+            _audioSource.clip = openSound;
+            _audioSource.Play();
         }
         // (optionally) Else
         else
