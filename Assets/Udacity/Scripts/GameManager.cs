@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour {
-	public GameObject door;
+
 	public Material skyboxDay;
 	public Material skyboxNight;
 	//private Skybox currentSkybox;
@@ -112,8 +112,6 @@ public class GameManager : MonoBehaviour {
 		_finalMaze.SetActive(false);
 
 		cam.transform.position = new Vector3(_originPosition.x, _originPosition.y, _originPosition.z);
-
-		door.transform.position = new Vector3(0f, 0f, 0f);
 	}
 
 	void InitMaze()
